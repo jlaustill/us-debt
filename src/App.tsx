@@ -57,7 +57,171 @@ const presidents = [{
     from: 2009,
     to: 2017,
     party: "Democrat"
-}]
+}];
+
+const senateControl = [{
+    party: "Democrat",
+    from: 1977,
+    to: 1979,
+}, {
+    party: "Democrat",
+    from: 1979,
+    to: 1981,
+}, {
+    party: "Democrat",
+    from: 1981,
+    to: 1983,
+}, {
+    party: "Republican",
+    from: 1983,
+    to: 1985,
+}, {
+    party: "Republican",
+    from: 1985,
+    to: 1987,
+}, {
+    party: "Democrat",
+    from: 1987,
+    to: 1989,
+}, {
+    party: "Democrat",
+    from: 1989,
+    to: 1991,
+}, {
+    party: "Democrat",
+    from: 1991,
+    to: 1993,
+}, {
+    party: "Democrat",
+    from: 1993,
+    to: 1995,
+}, {
+    party: "Republican",
+    from: 1995,
+    to: 1997,
+}, {
+    party: "Republican",
+    from: 1997,
+    to: 1999,
+}, {
+    party: "Republican",
+    from: 1999,
+    to: 2001,
+}, {
+    party: "Republican",
+    from: 2001,
+    to: 2003,
+}, {
+    party: "Republican",
+    from: 2003,
+    to: 2005,
+}, {
+    party: "Republican",
+    from: 2005,
+    to: 2007,
+}, {
+    party: "Republican",
+    from: 2007,
+    to: 2009,
+}, {
+    party: "Democrat",
+    from: 2009,
+    to: 2011,
+}, {
+    party: "Democrat",
+    from: 2011,
+    to: 2013,
+}, {
+    party: "Democrat",
+    from: 2013,
+    to: 2015,
+}, {
+    party: "Democrat",
+    from: 2015,
+    to: 2017,
+}];
+
+const houseControl = [{
+    party: "Democrat",
+    from: 1977,
+    to: 1979,
+}, {
+    party: "Democrat",
+    from: 1979,
+    to: 1981,
+}, {
+    party: "Democrat",
+    from: 1981,
+    to: 1983,
+}, {
+    party: "Democrat",
+    from: 1983,
+    to: 1985,
+}, {
+    party: "Democrat",
+    from: 1985,
+    to: 1987,
+}, {
+    party: "Democrat",
+    from: 1987,
+    to: 1989,
+}, {
+    party: "Democrat",
+    from: 1989,
+    to: 1991,
+}, {
+    party: "Democrat",
+    from: 1991,
+    to: 1993,
+}, {
+    party: "Democrat",
+    from: 1993,
+    to: 1995,
+}, {
+    party: "Republican",
+    from: 1995,
+    to: 1997,
+}, {
+    party: "Republican",
+    from: 1997,
+    to: 1999,
+}, {
+    party: "Republican",
+    from: 1999,
+    to: 2001,
+}, {
+    party: "Republican",
+    from: 2001,
+    to: 2003,
+}, {
+    party: "Republican",
+    from: 2003,
+    to: 2005,
+}, {
+    party: "Republican",
+    from: 2005,
+    to: 2007,
+}, {
+    party: "Democrat",
+    from: 2007,
+    to: 2009,
+}, {
+    party: "Democrat",
+    from: 2009,
+    to: 2011,
+}, {
+    party: "Republican",
+    from: 2011,
+    to: 2013,
+}, {
+    party: "Republican",
+    from: 2013,
+    to: 2015,
+}, {
+    party: "Republican",
+    from: 2015,
+    to: 2017,
+}];
 
 const options
     = {
@@ -86,12 +250,39 @@ const load = (chart) => {
 
         const leftPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === beggingYear).x);
         const rightPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === endingYear).x);
-        console.log(leftPoint, rightPoint);
 
         chart.renderer.rect(leftPoint, chart.plotTop, rightPoint - leftPoint, chart.plotHeight / 3).attr({
             // stroke: 'fuchsia',
             zIndex: -1,
             fill: president.party === "Democrat" ? 'rgba(23, 76, 250, 0.25)' : "rgba(250, 22, 22, 0.25)"
+        }).add();
+    }
+
+    for (const house of houseControl) {
+        const beggingYear = house.from < minYear ? minYear : house.from;
+        const endingYear = house.to > maxYear ? maxYear : house.to;
+
+        const leftPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === beggingYear).x);
+        const rightPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === endingYear).x);
+
+        chart.renderer.rect(leftPoint, chart.plotTop + (chart.plotHeight / 3), rightPoint - leftPoint, chart.plotHeight / 3).attr({
+            // stroke: 'fuchsia',
+            zIndex: -1,
+            fill: house.party === "Democrat" ? 'rgba(23, 76, 250, 0.25)' : "rgba(250, 22, 22, 0.25)"
+        }).add();
+    }
+
+    for (const senate of senateControl) {
+        const beggingYear = senate.from < minYear ? minYear : senate.from;
+        const endingYear = senate.to > maxYear ? maxYear : senate.to;
+
+        const leftPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === beggingYear).x);
+        const rightPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === endingYear).x);
+
+        chart.renderer.rect(leftPoint, chart.plotTop + (chart.plotHeight / 3 * 2), rightPoint - leftPoint, chart.plotHeight / 3).attr({
+            // stroke: 'fuchsia',
+            zIndex: -1,
+            fill: senate.party === "Democrat" ? 'rgba(23, 76, 250, 0.25)' : "rgba(250, 22, 22, 0.25)"
         }).add();
     }
 }
