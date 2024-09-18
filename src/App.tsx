@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react'
+import {useRef} from 'react'
 import map from "lodash/map";
 import at from "lodash/at";
 import sortBy from "lodash/sortBy";
@@ -9,7 +9,7 @@ import data from "./data/us-debt";
 import presidents from "./data/presidents.ts";
 import senateControl from "./data/senate-control.ts";
 import houseControl from "./data/house-control.ts";
-import Highcharts from 'highcharts';
+import Highcharts, {Chart, Point} from 'highcharts';
 
 
 const growthData = map(sortBy(data, 'year'), o => at(o, ["year", "debtGrowthRate"]));
@@ -68,14 +68,14 @@ const options
     }]
 };
 
-const load = (chart) => {
+const load = (chart: Chart) => {
     for (const president of presidents) {
         const beggingYear = president.from < minYear ? minYear : president.from;
         const endingYear = president.to > maxYear ? maxYear : president.to;
 
         try {
-            const leftPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === beggingYear).x);
-            const rightPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === endingYear).x);
+            const leftPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === beggingYear)?.x || 0);
+            const rightPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === endingYear)?.x || 0);
 
             chart.renderer.rect(leftPoint, chart.plotTop, rightPoint - leftPoint, chart.plotHeight / 3).attr({
                 // stroke: 'fuchsia',
@@ -92,8 +92,8 @@ const load = (chart) => {
         const endingYear = house.to > maxYear ? maxYear : house.to;
 
         try {
-            const leftPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === beggingYear).x);
-            const rightPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === endingYear).x);
+            const leftPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === beggingYear)?.x || 0);
+            const rightPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === endingYear)?.x || 0);
 
             chart.renderer.rect(leftPoint, chart.plotTop + (chart.plotHeight / 3), rightPoint - leftPoint, chart.plotHeight / 3).attr({
                 // stroke: 'fuchsia',
@@ -110,14 +110,16 @@ const load = (chart) => {
         const endingYear = senate.to > maxYear ? maxYear : senate.to;
 
         try {
-            const leftPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === beggingYear).x);
-            const rightPoint = chart.series[0].xAxis.toPixels(chart.series[0].points.find(p => p.x === endingYear).x);
+            const leftPoint: number | undefined = chart.series[0].xAxis.toPixels(chart.series[0].points.find((p: Point) => p.x === beggingYear)?.x || 0);
+            const rightPoint: number | undefined = chart.series[0].xAxis.toPixels(chart.series[0].points.find((p: Point) => p.x === endingYear)?.x || 0);
 
-            chart.renderer.rect(leftPoint, chart.plotTop + (chart.plotHeight / 3 * 2), rightPoint - leftPoint, chart.plotHeight / 3).attr({
-                // stroke: 'fuchsia',
-                zIndex: -1,
-                fill: senate.party === "Democrat" ? 'rgba(23, 76, 250, 0.25)' : "rgba(250, 22, 22, 0.25)"
-            }).add();
+            if (leftPoint && rightPoint) {
+                chart.renderer.rect(leftPoint, chart.plotTop + (chart.plotHeight / 3 * 2), rightPoint - leftPoint, chart.plotHeight / 3).attr({
+                    // stroke: 'fuchsia',
+                    zIndex: -1,
+                    fill: senate.party === "Democrat" ? 'rgba(23, 76, 250, 0.25)' : "rgba(250, 22, 22, 0.25)"
+                }).add();
+            }
         } catch (error) {
             console.log(`Failed to add senate ${senate.party} with error: ${error}`);
         }
@@ -125,8 +127,7 @@ const load = (chart) => {
 }
 
 function App() {
-    const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
-    const [count, setCount] = useState(0);
+    const chartComponentRef = useRef<HighchartsReact.RefObject | null>(null);
 
     return (
         <>
