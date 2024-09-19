@@ -37,11 +37,13 @@ const options
     },
     yAxis: [{
         min: minY,
-        max: maxY
+        max: maxY,
+        title: {text: "Percent %"}
     }, {
         min: 0,
         max: 40000,
-        opposite: true
+        opposite: true,
+        title: {text: "Billions USD"}
     }],
     xAxis: {
         min: minYear,
@@ -82,6 +84,14 @@ const load = (chart: Chart) => {
                 zIndex: -1,
                 fill: president.party === "Democrat" ? 'rgba(23, 76, 250, 0.25)' : "rgba(250, 22, 22, 0.25)"
             }).add();
+
+            chart.renderer
+                .text(president.name, leftPoint, chart.plotTop + 50, true)
+                .css({
+                    width: rightPoint - leftPoint,       // Set the width for wrapping
+                    textOverflow: 'wrap', // Enable text wrapping
+                })
+                .add();
         } catch (error) {
             console.log(`Failed to display president ${president.name} with this erro: ${error}`);
         }
