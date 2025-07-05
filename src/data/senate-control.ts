@@ -1,5 +1,21 @@
 const senateControl = [{
     party: "Democrat",
+    from: 1969,
+    to: 1971,
+}, {
+    party: "Democrat",
+    from: 1971,
+    to: 1973,
+}, {
+    party: "Democrat",
+    from: 1973,
+    to: 1975,
+}, {
+    party: "Democrat",
+    from: 1975,
+    to: 1977,
+}, {
+    party: "Democrat",
     from: 1977,
     to: 1979,
 }, {
@@ -94,6 +110,10 @@ const senateControl = [{
     party: "Democrat",
     from: 2023,
     to: 2025,
+}, {
+    party: "Republican",
+    from: 2025,
+    to: 2027,
 }];
 
 export default senateControl;

@@ -1,4 +1,14 @@
 const presidents = [{
+    name: "Richard Nixon",
+    from: 1969,
+    to: 1974,
+    party: "Republican"
+}, {
+    name: "Gerald Ford",
+    from: 1974,
+    to: 1977,
+    party: "Republican"
+}, {
     name: "Jimmy Carter",
     from: 1977,
     to: 1981,
@@ -38,6 +48,11 @@ const presidents = [{
     from: 2021,
     to: 2025,
     party: "Democrat"
+}, {
+    name: "Donald Trump",
+    from: 2025,
+    to: 2029,
+    party: "Republican"
 }];
 
 export default presidents;

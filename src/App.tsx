@@ -23,8 +23,8 @@ const adjustedDebtData = map(sortBy(data, 'year'), o => at(o, ["year", "adjusted
 
 const maxY: number = 25;
 const minY: number = -5;
-const minYear = 1978;
-const maxYear = 2023;
+const minYear = 1970;
+const maxYear = 2024;
 
 
 const options
@@ -148,6 +148,62 @@ function App() {
                 ref={chartComponentRef}
                 callback={load}
             />
+            
+            <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+                <h2>Data Sources</h2>
+                <p>This visualization uses data from official U.S. government sources to ensure accuracy and reliability:</p>
+                
+                <div style={{ marginBottom: '20px' }}>
+                    <h3>National Debt Data</h3>
+                    <ul>
+                        <li><a href="https://fiscaldata.treasury.gov/datasets/historical-debt-outstanding/" target="_blank" rel="noopener noreferrer">U.S. Treasury Fiscal Data - Historical Debt Outstanding</a></li>
+                        <li><a href="https://treasurydirect.gov/government/historical-debt-outstanding/" target="_blank" rel="noopener noreferrer">TreasuryDirect - Historical Debt Outstanding</a></li>
+                        <li><a href="https://fred.stlouisfed.org/series/GFDEBTN" target="_blank" rel="noopener noreferrer">FRED - Federal Debt: Total Public Debt</a></li>
+                    </ul>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                    <h3>GDP Data</h3>
+                    <ul>
+                        <li><a href="https://www.bea.gov/data/gdp/gross-domestic-product" target="_blank" rel="noopener noreferrer">Bureau of Economic Analysis - GDP Data</a></li>
+                        <li><a href="https://apps.bea.gov/itable/?ReqID=70&step=1" target="_blank" rel="noopener noreferrer">BEA Interactive Data Application</a></li>
+                        <li><a href="https://fred.stlouisfed.org/tags/series?t=bea%3Bgdp" target="_blank" rel="noopener noreferrer">FRED - GDP Data Series</a></li>
+                    </ul>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                    <h3>Inflation Data (Consumer Price Index)</h3>
+                    <ul>
+                        <li><a href="https://www.bls.gov/cpi/" target="_blank" rel="noopener noreferrer">Bureau of Labor Statistics - Consumer Price Index</a></li>
+                        <li><a href="https://www.bls.gov/regions/mid-atlantic/data/consumerpriceindexhistorical_us_table.htm" target="_blank" rel="noopener noreferrer">BLS - Historical CPI Tables</a></li>
+                        <li><a href="https://fred.stlouisfed.org/series/CPIAUCSL" target="_blank" rel="noopener noreferrer">FRED - Consumer Price Index for All Urban Consumers</a></li>
+                    </ul>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                    <h3>Federal Spending Data</h3>
+                    <ul>
+                        <li><a href="https://www.whitehouse.gov/omb/information-resources/budget/historical-tables/" target="_blank" rel="noopener noreferrer">Office of Management and Budget - Historical Tables</a></li>
+                        <li><a href="https://www.govinfo.gov/app/details/BUDGET-2025-TAB" target="_blank" rel="noopener noreferrer">Government Publishing Office - Budget Historical Tables</a></li>
+                        <li><a href="https://www.cbo.gov/data/budget-economic-data" target="_blank" rel="noopener noreferrer">Congressional Budget Office - Budget and Economic Data</a></li>
+                    </ul>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                    <h3>Population Data</h3>
+                    <ul>
+                        <li><a href="https://fred.stlouisfed.org/series/POPTHM" target="_blank" rel="noopener noreferrer">FRED - U.S. Population (Monthly)</a></li>
+                        <li><a href="https://fred.stlouisfed.org/release?rid=118" target="_blank" rel="noopener noreferrer">FRED - Annual Population Estimates</a></li>
+                        <li><a href="https://fred.stlouisfed.org/source?soid=19" target="_blank" rel="noopener noreferrer">FRED - U.S. Census Bureau Data</a></li>
+                    </ul>
+                </div>
+
+                <p style={{ fontSize: '14px', color: '#666', marginTop: '20px' }}>
+                    <strong>Note:</strong> All data is sourced from official U.S. government agencies to ensure accuracy and reliability. 
+                    Debt figures are adjusted to 2000 USD using Consumer Price Index data from the Bureau of Labor Statistics.
+                    Growth rates are calculated based on inflation-adjusted debt values.
+                </p>
+            </div>
         </>
     )
 }
