@@ -1,4 +1,4 @@
-import {useRef} from 'react'
+import {useRef, useState} from 'react'
 import map from "lodash/map";
 import at from "lodash/at";
 import sortBy from "lodash/sortBy";
@@ -10,6 +10,12 @@ import presidents from "./data/presidents.ts";
 import senateControl from "./data/senate-control.ts";
 import houseControl from "./data/house-control.ts";
 import Highcharts, {Chart} from 'highcharts';
+
+// Type cast function to help with yAxis access
+const getSeriesYAxis = (series: Highcharts.Series): number | undefined => {
+    const options = series.options as { yAxis?: number };
+    return options.yAxis;
+};
 
 
 const growthData = map(sortBy(data, 'year'), o => at(o, ["year", "debtGrowthRate"]));
@@ -161,15 +167,15 @@ const options
     plotOptions: {
         series: {
             events: {
-                legendItemClick: function(this: any) {
+                legendItemClick: function(this: Highcharts.Series) {
                     const chart = this.chart;
                     
                     // Wait for the visibility change to take effect
                     setTimeout(() => {
                         // Check which series are visible for each axis
-                        const growthSeriesVisible = chart.series.some((s: any) => s.visible && s.yAxis.index === 0);
-                        const billionsSeriesVisible = chart.series.some((s: any) => s.visible && s.yAxis.index === 1);
-                        const populationSeriesVisible = chart.series.some((s: any) => s.visible && s.yAxis.index === 2);
+                        const growthSeriesVisible = chart.series.some((s: Highcharts.Series) => s.visible && getSeriesYAxis(s) === 0);
+                        const billionsSeriesVisible = chart.series.some((s: Highcharts.Series) => s.visible && getSeriesYAxis(s) === 1);
+                        const populationSeriesVisible = chart.series.some((s: Highcharts.Series) => s.visible && getSeriesYAxis(s) === 2);
                         
                         // Show/hide axes based on visible series
                         chart.yAxis[0].update({ 
@@ -192,14 +198,14 @@ const options
                         
                         // Auto-zoom for billions USD axis
                         if (billionsSeriesVisible) {
-                            const visibleBillionsSeries = chart.series.filter((s: any) => s.visible && s.yAxis.index === 1);
+                            const visibleBillionsSeries = chart.series.filter((s: Highcharts.Series) => s.visible && getSeriesYAxis(s) === 1);
                             
                             if (visibleBillionsSeries.length > 0) {
                                 let minVal = Infinity;
                                 let maxVal = -Infinity;
                                 
-                                visibleBillionsSeries.forEach((s: any) => {
-                                    s.points.forEach((point: any) => {
+                                visibleBillionsSeries.forEach((s: Highcharts.Series) => {
+                                    s.points.forEach((point: Highcharts.Point) => {
                                         if (point.y !== null && point.y !== undefined) {
                                             minVal = Math.min(minVal, point.y);
                                             maxVal = Math.max(maxVal, point.y);
@@ -216,12 +222,12 @@ const options
                         
                         // Auto-zoom for population axis
                         if (populationSeriesVisible) {
-                            const populationSeries = chart.series.find((s: any) => s.name === 'Population');
+                            const populationSeries = chart.series.find((s: Highcharts.Series) => s.name === 'Population');
                             if (populationSeries && populationSeries.visible) {
                                 let minPop = Infinity;
                                 let maxPop = -Infinity;
                                 
-                                populationSeries.points.forEach((point: any) => {
+                                populationSeries.points.forEach((point: Highcharts.Point) => {
                                     if (point.y !== null && point.y !== undefined) {
                                         minPop = Math.min(minPop, point.y);
                                         maxPop = Math.max(maxPop, point.y);
@@ -328,14 +334,10 @@ const renderPoliticalOverlays = (chart: Chart) => {
     // Remove existing political overlay elements by class
     try {
         const existingOverlays = chart.container.querySelectorAll('.political-overlay');
-        existingOverlays.forEach((overlay: any) => {
-            if (overlay.destroy) {
-                overlay.destroy();
-            } else {
-                overlay.remove();
-            }
+        existingOverlays.forEach((overlay: Element) => {
+            overlay.remove();
         });
-    } catch (error) {
+    } catch {
         // Ignore cleanup errors
     }
 
@@ -420,22 +422,228 @@ const renderPoliticalOverlays = (chart: Chart) => {
     }
 }
 
-const load = (chart: Chart) => {
+const load = (chart: Chart, setIsChartLoading: (loading: boolean) => void) => {
     renderPoliticalOverlays(chart);
+    setIsChartLoading(false);
 }
 
 function App() {
     const chartComponentRef = useRef<HighchartsReact.RefObject | null>(null);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [isChartLoading, setIsChartLoading] = useState(true);
 
     return (
-        <>
-            <h1>United States Of America - National Debt Owed Over Time</h1>
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-                ref={chartComponentRef}
-                callback={load}
-            />
+        <div style={{ 
+            maxWidth: '1200px', 
+            margin: '0 auto', 
+            padding: '20px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+        }}>
+            <div style={{ 
+                textAlign: 'center', 
+                marginBottom: '30px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                padding: '40px 20px',
+                borderRadius: '12px',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+            }}>
+                <h1 style={{ 
+                    fontSize: 'clamp(24px, 4vw, 42px)',
+                    fontWeight: '700',
+                    margin: '0 0 15px 0',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                }}>
+                    United States National Debt
+                </h1>
+                <p style={{ 
+                    fontSize: 'clamp(16px, 2vw, 20px)',
+                    margin: '0',
+                    opacity: '0.9',
+                    fontWeight: '300'
+                }}>
+                    Interactive Analysis • 1970-2024 • Open Source
+                </p>
+            </div>
+            
+            <div style={{ 
+                backgroundColor: '#ffffff',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                marginBottom: '30px',
+                position: 'relative',
+                minHeight: '400px'
+            }}>
+                {isChartLoading && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '0',
+                        left: '0',
+                        right: '0',
+                        bottom: '0',
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '12px',
+                        zIndex: 1000,
+                        flexDirection: 'column',
+                        gap: '20px'
+                    }}>
+                        <div style={{
+                            width: '50px',
+                            height: '50px',
+                            border: '4px solid #e5e7eb',
+                            borderTop: '4px solid #2563eb',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite'
+                        }}></div>
+                        <p style={{
+                            color: '#6b7280',
+                            fontSize: '16px',
+                            fontWeight: '500',
+                            margin: '0'
+                        }}>
+                            Loading chart data...
+                        </p>
+                    </div>
+                )}
+                <HighchartsReact
+                    highcharts={Highcharts}
+                    options={options}
+                    ref={chartComponentRef}
+                    callback={(chart: Chart) => load(chart, setIsChartLoading)}
+                />
+            </div>
+            
+            <div style={{ 
+                marginBottom: '30px', 
+                backgroundColor: '#fff7ed', 
+                borderRadius: '12px', 
+                border: '2px solid #fed7aa',
+                overflow: 'hidden',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+            }}>
+                <button
+                    onClick={() => setIsGuideOpen(!isGuideOpen)}
+                    style={{
+                        width: '100%',
+                        padding: '20px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: '18px',
+                        fontWeight: '600',
+                        color: '#ea580c'
+                    }}
+                >
+                    <span>📖 How to Use This Chart</span>
+                    <span style={{ 
+                        fontSize: '20px',
+                        transform: isGuideOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease'
+                    }}>
+                        ▼
+                    </span>
+                </button>
+                
+                {isGuideOpen && (
+                    <div style={{ 
+                        padding: '0 20px 20px 20px',
+                        borderTop: '1px solid #fed7aa'
+                    }}>
+                        <div style={{ 
+                            display: 'grid', 
+                            gap: '15px',
+                            marginTop: '15px'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                <span style={{ 
+                                    minWidth: '24px',
+                                    height: '24px',
+                                    backgroundColor: '#ea580c',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold'
+                                }}>
+                                    1
+                                </span>
+                                <div>
+                                    <strong>Toggle Data Series:</strong> Click any item in the legend below the chart to show/hide that data series. The chart will automatically adjust its axes and scaling.
+                                </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                <span style={{ 
+                                    minWidth: '24px',
+                                    height: '24px',
+                                    backgroundColor: '#ea580c',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold'
+                                }}>
+                                    2
+                                </span>
+                                <div>
+                                    <strong>Compare Different Metrics:</strong> View debt alongside GDP, federal spending, and population data. Mix and match series to explore relationships.
+                                </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                <span style={{ 
+                                    minWidth: '24px',
+                                    height: '24px',
+                                    backgroundColor: '#ea580c',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold'
+                                }}>
+                                    3
+                                </span>
+                                <div>
+                                    <strong>Political Context:</strong> Colored background areas show presidential terms, House control (middle), and Senate control (bottom) to provide political context.
+                                </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                <span style={{ 
+                                    minWidth: '24px',
+                                    height: '24px',
+                                    backgroundColor: '#ea580c',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '12px',
+                                    fontWeight: 'bold'
+                                }}>
+                                    4
+                                </span>
+                                <div>
+                                    <strong>Inflation-Adjusted vs Nominal:</strong> Toggle between raw dollar amounts and inflation-adjusted values (to 2000 USD) for accurate historical comparisons.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
             
             <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
                 <h2>Data Sources</h2>
@@ -492,7 +700,69 @@ function App() {
                     Growth rates are calculated based on inflation-adjusted debt values.
                 </p>
             </div>
-        </>
+            
+            <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f0f4f8', borderRadius: '8px', textAlign: 'center', borderTop: '3px solid #2563eb' }}>
+                <h3 style={{ color: '#1f2937', marginBottom: '15px' }}>Open Source & Transparency</h3>
+                <p style={{ fontSize: '16px', color: '#374151', marginBottom: '15px' }}>
+                    This visualization is completely open source! We believe in transparency and encourage everyone to verify our data and methodology.
+                </p>
+                <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '15px' }}>
+                    Found an error or have an improvement? We welcome contributions! Feel free to review our code, data sources, and calculations.
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                    <a 
+                        href="https://github.com/jlaustill/us-debt" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ 
+                            color: '#2563eb', 
+                            textDecoration: 'none', 
+                            fontWeight: 'bold',
+                            padding: '8px 16px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '6px',
+                            border: '2px solid #2563eb',
+                            transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#2563eb';
+                            e.currentTarget.style.color = '#ffffff';
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.color = '#2563eb';
+                        }}
+                    >
+                        View Source Code
+                    </a>
+                    <a 
+                        href="https://github.com/jlaustill/us-debt/issues" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ 
+                            color: '#059669', 
+                            textDecoration: 'none', 
+                            fontWeight: 'bold',
+                            padding: '8px 16px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '6px',
+                            border: '2px solid #059669',
+                            transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#059669';
+                            e.currentTarget.style.color = '#ffffff';
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.color = '#059669';
+                        }}
+                    >
+                        Report Issues
+                    </a>
+                </div>
+            </div>
+        </div>
     )
 }
 
