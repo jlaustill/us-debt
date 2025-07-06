@@ -160,9 +160,19 @@ const options
                 fontSize: '11px'
             }
         },
-        gridLineColor: '#e5e7eb',
+        gridLineColor: 'rgba(0, 0, 0, 0.05)',
+        gridLineWidth: 1,
         lineColor: '#d1d5db',
-        tickColor: '#d1d5db'
+        tickColor: '#d1d5db',
+        plotLines: [
+            // Subtle vertical lines for major political transitions
+            { value: 1981, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Reagan
+            { value: 1993, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Clinton
+            { value: 2001, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Bush
+            { value: 2009, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Obama
+            { value: 2017, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Trump
+            { value: 2021, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }  // Biden
+        ]
     },
     plotOptions: {
         series: {
@@ -439,7 +449,7 @@ function App() {
             padding: '20px',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
         }}>
-            <div style={{ 
+            <header style={{ 
                 textAlign: 'center', 
                 marginBottom: '30px',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -464,41 +474,53 @@ function App() {
                 }}>
                     Interactive Analysis • 1970-2024 • Open Source
                 </p>
-            </div>
+            </header>
             
-            <div style={{ 
-                backgroundColor: '#ffffff',
-                borderRadius: '12px',
-                padding: '20px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                marginBottom: '30px',
-                position: 'relative',
-                minHeight: '400px'
-            }}>
+            <main 
+                role="main"
+                aria-label="Interactive chart of US national debt data"
+                style={{ 
+                    backgroundColor: '#ffffff',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                    marginBottom: '30px',
+                    position: 'relative',
+                    minHeight: '400px'
+                }}
+            >
                 {isChartLoading && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '0',
-                        left: '0',
-                        right: '0',
-                        bottom: '0',
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: '12px',
-                        zIndex: 1000,
-                        flexDirection: 'column',
-                        gap: '20px'
-                    }}>
-                        <div style={{
-                            width: '50px',
-                            height: '50px',
-                            border: '4px solid #e5e7eb',
-                            borderTop: '4px solid #2563eb',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite'
-                        }}></div>
+                    <div 
+                        role="status"
+                        aria-live="polite"
+                        aria-label="Loading chart data"
+                        style={{
+                            position: 'absolute',
+                            top: '0',
+                            left: '0',
+                            right: '0',
+                            bottom: '0',
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '12px',
+                            zIndex: 1000,
+                            flexDirection: 'column',
+                            gap: '20px'
+                        }}
+                    >
+                        <div 
+                            aria-hidden="true"
+                            style={{
+                                width: '50px',
+                                height: '50px',
+                                border: '4px solid #e5e7eb',
+                                borderTop: '4px solid #2563eb',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite'
+                            }}
+                        ></div>
                         <p style={{
                             color: '#6b7280',
                             fontSize: '16px',
@@ -509,24 +531,42 @@ function App() {
                         </p>
                     </div>
                 )}
-                <HighchartsReact
-                    highcharts={Highcharts}
-                    options={options}
-                    ref={chartComponentRef}
-                    callback={(chart: Chart) => load(chart, setIsChartLoading)}
-                />
-            </div>
+                <div 
+                    role="img"
+                    aria-label="Interactive line chart showing US national debt from 1970 to 2024. Chart displays debt growth rate, inflation-adjusted debt amounts, GDP, federal spending, and population data. Political context shown with colored background areas for presidential terms and congressional control."
+                    tabIndex={0}
+                >
+                    <HighchartsReact
+                        highcharts={Highcharts}
+                        options={options}
+                        ref={chartComponentRef}
+                        callback={(chart: Chart) => load(chart, setIsChartLoading)}
+                    />
+                </div>
+            </main>
             
-            <div style={{ 
-                marginBottom: '30px', 
-                backgroundColor: '#fff7ed', 
-                borderRadius: '12px', 
-                border: '2px solid #fed7aa',
-                overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-            }}>
+            <section 
+                aria-label="Chart usage instructions"
+                style={{ 
+                    marginBottom: '30px', 
+                    backgroundColor: '#fff7ed', 
+                    borderRadius: '12px', 
+                    border: '2px solid #fed7aa',
+                    overflow: 'hidden',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                }}
+            >
                 <button
                     onClick={() => setIsGuideOpen(!isGuideOpen)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setIsGuideOpen(!isGuideOpen);
+                        }
+                    }}
+                    aria-expanded={isGuideOpen}
+                    aria-controls="user-guide-content"
+                    aria-label={`${isGuideOpen ? 'Hide' : 'Show'} chart usage instructions`}
                     style={{
                         width: '100%',
                         padding: '20px',
@@ -542,155 +582,305 @@ function App() {
                     }}
                 >
                     <span>📖 How to Use This Chart</span>
-                    <span style={{ 
-                        fontSize: '20px',
-                        transform: isGuideOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.2s ease'
-                    }}>
+                    <span 
+                        aria-hidden="true"
+                        style={{ 
+                            fontSize: '20px',
+                            transform: isGuideOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s ease'
+                        }}
+                    >
                         ▼
                     </span>
                 </button>
                 
                 {isGuideOpen && (
-                    <div style={{ 
-                        padding: '0 20px 20px 20px',
-                        borderTop: '1px solid #fed7aa'
-                    }}>
-                        <div style={{ 
+                    <div 
+                        id="user-guide-content"
+                        role="region"
+                        aria-label="Chart interaction instructions"
+                        style={{ 
+                            padding: '0 20px 20px 20px',
+                            borderTop: '1px solid #fed7aa'
+                        }}
+                    >
+                        <ol style={{ 
+                            listStyle: 'none',
+                            padding: '0',
+                            margin: '15px 0 0 0',
                             display: 'grid', 
-                            gap: '15px',
-                            marginTop: '15px'
+                            gap: '15px'
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                <span style={{ 
-                                    minWidth: '24px',
-                                    height: '24px',
-                                    backgroundColor: '#ea580c',
-                                    color: 'white',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold'
-                                }}>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                <span 
+                                    aria-hidden="true"
+                                    style={{ 
+                                        minWidth: '24px',
+                                        height: '24px',
+                                        backgroundColor: '#ea580c',
+                                        color: 'white',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
                                     1
                                 </span>
                                 <div>
                                     <strong>Toggle Data Series:</strong> Click any item in the legend below the chart to show/hide that data series. The chart will automatically adjust its axes and scaling.
                                 </div>
-                            </div>
+                            </li>
                             
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                <span style={{ 
-                                    minWidth: '24px',
-                                    height: '24px',
-                                    backgroundColor: '#ea580c',
-                                    color: 'white',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold'
-                                }}>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                <span 
+                                    aria-hidden="true"
+                                    style={{ 
+                                        minWidth: '24px',
+                                        height: '24px',
+                                        backgroundColor: '#ea580c',
+                                        color: 'white',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
                                     2
                                 </span>
                                 <div>
                                     <strong>Compare Different Metrics:</strong> View debt alongside GDP, federal spending, and population data. Mix and match series to explore relationships.
                                 </div>
-                            </div>
+                            </li>
                             
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                <span style={{ 
-                                    minWidth: '24px',
-                                    height: '24px',
-                                    backgroundColor: '#ea580c',
-                                    color: 'white',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold'
-                                }}>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                <span 
+                                    aria-hidden="true"
+                                    style={{ 
+                                        minWidth: '24px',
+                                        height: '24px',
+                                        backgroundColor: '#ea580c',
+                                        color: 'white',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
                                     3
                                 </span>
                                 <div>
                                     <strong>Political Context:</strong> Colored background areas show presidential terms, House control (middle), and Senate control (bottom) to provide political context.
                                 </div>
-                            </div>
+                            </li>
                             
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                <span style={{ 
-                                    minWidth: '24px',
-                                    height: '24px',
-                                    backgroundColor: '#ea580c',
-                                    color: 'white',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold'
-                                }}>
+                            <li style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                <span 
+                                    aria-hidden="true"
+                                    style={{ 
+                                        minWidth: '24px',
+                                        height: '24px',
+                                        backgroundColor: '#ea580c',
+                                        color: 'white',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
                                     4
                                 </span>
                                 <div>
                                     <strong>Inflation-Adjusted vs Nominal:</strong> Toggle between raw dollar amounts and inflation-adjusted values (to 2000 USD) for accurate historical comparisons.
                                 </div>
-                            </div>
-                        </div>
+                            </li>
+                        </ol>
                     </div>
                 )}
-            </div>
+            </section>
             
-            <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+            <section 
+                aria-label="Share this visualization"
+                style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f0f9ff', borderRadius: '8px', textAlign: 'center', border: '2px solid #0ea5e9' }}
+            >
+                <h3 style={{ color: '#1f2937', marginBottom: '15px' }}>Share This Visualization</h3>
+                <p style={{ fontSize: '16px', color: '#374151', marginBottom: '20px' }}>
+                    Help spread awareness about US debt trends by sharing this interactive visualization
+                </p>
+                <nav aria-label="Social sharing options">
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
+                        <a 
+                            href="https://x.com/intent/tweet?text=Check%20out%20this%20interactive%20US%20National%20Debt%20visualization%20%F0%9F%93%8A%20Track%20debt%20growth%2C%20compare%20with%20GDP%20%26%20spending%2C%20see%20political%20impacts%20from%201970-2024.%20All%20data%20verified%20from%20government%20sources%21&url=https%3A%2F%2Fjlaustill.github.io%2Fus-debt%2F&hashtags=USDebt,DataViz,OpenSource,Economics"
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            aria-label="Share on X (opens in new tab)"
+                            style={{ 
+                                color: '#000000', 
+                                textDecoration: 'none', 
+                                fontWeight: 'bold',
+                                padding: '10px 20px',
+                                backgroundColor: '#ffffff',
+                                borderRadius: '6px',
+                                border: '2px solid #000000',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.backgroundColor = '#000000';
+                                e.currentTarget.style.color = '#ffffff';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.color = '#000000';
+                            }}
+                            onFocus={(e) => {
+                                e.currentTarget.style.outline = '2px solid #000000';
+                                e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.outline = 'none';
+                            }}
+                        >
+                            <span aria-hidden="true">𝕏</span>
+                            Share on X
+                        </a>
+                        <a 
+                            href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fjlaustill.github.io%2Fus-debt%2F"
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            aria-label="Share on Facebook (opens in new tab)"
+                            style={{ 
+                                color: '#1877f2', 
+                                textDecoration: 'none', 
+                                fontWeight: 'bold',
+                                padding: '10px 20px',
+                                backgroundColor: '#ffffff',
+                                borderRadius: '6px',
+                                border: '2px solid #1877f2',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.backgroundColor = '#1877f2';
+                                e.currentTarget.style.color = '#ffffff';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.color = '#1877f2';
+                            }}
+                            onFocus={(e) => {
+                                e.currentTarget.style.outline = '2px solid #1877f2';
+                                e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.outline = 'none';
+                            }}
+                        >
+                            <span aria-hidden="true">📘</span>
+                            Share on Facebook
+                        </a>
+                        <a 
+                            href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fjlaustill.github.io%2Fus-debt%2F"
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            aria-label="Share on LinkedIn (opens in new tab)"
+                            style={{ 
+                                color: '#0077b5', 
+                                textDecoration: 'none', 
+                                fontWeight: 'bold',
+                                padding: '10px 20px',
+                                backgroundColor: '#ffffff',
+                                borderRadius: '6px',
+                                border: '2px solid #0077b5',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.backgroundColor = '#0077b5';
+                                e.currentTarget.style.color = '#ffffff';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.color = '#0077b5';
+                            }}
+                            onFocus={(e) => {
+                                e.currentTarget.style.outline = '2px solid #0077b5';
+                                e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.outline = 'none';
+                            }}
+                        >
+                            <span aria-hidden="true">💼</span>
+                            Share on LinkedIn
+                        </a>
+                    </div>
+                </nav>
+            </section>
+            
+            <section 
+                aria-label="Data sources and methodology"
+                style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}
+            >
                 <h2>Data Sources</h2>
                 <p>This visualization uses data from official U.S. government sources to ensure accuracy and reliability:</p>
                 
                 <div style={{ marginBottom: '20px' }}>
                     <h3>National Debt Data</h3>
                     <ul>
-                        <li><a href="https://fiscaldata.treasury.gov/datasets/historical-debt-outstanding/" target="_blank" rel="noopener noreferrer">U.S. Treasury Fiscal Data - Historical Debt Outstanding</a></li>
-                        <li><a href="https://treasurydirect.gov/government/historical-debt-outstanding/" target="_blank" rel="noopener noreferrer">TreasuryDirect - Historical Debt Outstanding</a></li>
-                        <li><a href="https://fred.stlouisfed.org/series/GFDEBTN" target="_blank" rel="noopener noreferrer">FRED - Federal Debt: Total Public Debt</a></li>
+                        <li><a href="https://fiscaldata.treasury.gov/datasets/historical-debt-outstanding/" target="_blank" rel="noopener noreferrer" aria-label="U.S. Treasury Fiscal Data - Historical Debt Outstanding (opens in new tab)">U.S. Treasury Fiscal Data - Historical Debt Outstanding</a></li>
+                        <li><a href="https://treasurydirect.gov/government/historical-debt-outstanding/" target="_blank" rel="noopener noreferrer" aria-label="TreasuryDirect - Historical Debt Outstanding (opens in new tab)">TreasuryDirect - Historical Debt Outstanding</a></li>
+                        <li><a href="https://fred.stlouisfed.org/series/GFDEBTN" target="_blank" rel="noopener noreferrer" aria-label="FRED - Federal Debt: Total Public Debt (opens in new tab)">FRED - Federal Debt: Total Public Debt</a></li>
                     </ul>
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
                     <h3>GDP Data</h3>
                     <ul>
-                        <li><a href="https://www.bea.gov/data/gdp/gross-domestic-product" target="_blank" rel="noopener noreferrer">Bureau of Economic Analysis - GDP Data</a></li>
-                        <li><a href="https://apps.bea.gov/itable/?ReqID=70&step=1" target="_blank" rel="noopener noreferrer">BEA Interactive Data Application</a></li>
-                        <li><a href="https://fred.stlouisfed.org/tags/series?t=bea%3Bgdp" target="_blank" rel="noopener noreferrer">FRED - GDP Data Series</a></li>
+                        <li><a href="https://www.bea.gov/data/gdp/gross-domestic-product" target="_blank" rel="noopener noreferrer" aria-label="Bureau of Economic Analysis - GDP Data (opens in new tab)">Bureau of Economic Analysis - GDP Data</a></li>
+                        <li><a href="https://apps.bea.gov/itable/?ReqID=70&step=1" target="_blank" rel="noopener noreferrer" aria-label="BEA Interactive Data Application (opens in new tab)">BEA Interactive Data Application</a></li>
+                        <li><a href="https://fred.stlouisfed.org/tags/series?t=bea%3Bgdp" target="_blank" rel="noopener noreferrer" aria-label="FRED - GDP Data Series (opens in new tab)">FRED - GDP Data Series</a></li>
                     </ul>
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
                     <h3>Inflation Data (Consumer Price Index)</h3>
                     <ul>
-                        <li><a href="https://www.bls.gov/cpi/" target="_blank" rel="noopener noreferrer">Bureau of Labor Statistics - Consumer Price Index</a></li>
-                        <li><a href="https://www.bls.gov/regions/mid-atlantic/data/consumerpriceindexhistorical_us_table.htm" target="_blank" rel="noopener noreferrer">BLS - Historical CPI Tables</a></li>
-                        <li><a href="https://fred.stlouisfed.org/series/CPIAUCSL" target="_blank" rel="noopener noreferrer">FRED - Consumer Price Index for All Urban Consumers</a></li>
+                        <li><a href="https://www.bls.gov/cpi/" target="_blank" rel="noopener noreferrer" aria-label="Bureau of Labor Statistics - Consumer Price Index (opens in new tab)">Bureau of Labor Statistics - Consumer Price Index</a></li>
+                        <li><a href="https://www.bls.gov/regions/mid-atlantic/data/consumerpriceindexhistorical_us_table.htm" target="_blank" rel="noopener noreferrer" aria-label="BLS - Historical CPI Tables (opens in new tab)">BLS - Historical CPI Tables</a></li>
+                        <li><a href="https://fred.stlouisfed.org/series/CPIAUCSL" target="_blank" rel="noopener noreferrer" aria-label="FRED - Consumer Price Index for All Urban Consumers (opens in new tab)">FRED - Consumer Price Index for All Urban Consumers</a></li>
                     </ul>
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
                     <h3>Federal Spending Data</h3>
                     <ul>
-                        <li><a href="https://www.whitehouse.gov/omb/information-resources/budget/historical-tables/" target="_blank" rel="noopener noreferrer">Office of Management and Budget - Historical Tables</a></li>
-                        <li><a href="https://www.govinfo.gov/app/details/BUDGET-2025-TAB" target="_blank" rel="noopener noreferrer">Government Publishing Office - Budget Historical Tables</a></li>
-                        <li><a href="https://www.cbo.gov/data/budget-economic-data" target="_blank" rel="noopener noreferrer">Congressional Budget Office - Budget and Economic Data</a></li>
+                        <li><a href="https://www.whitehouse.gov/omb/information-resources/budget/historical-tables/" target="_blank" rel="noopener noreferrer" aria-label="Office of Management and Budget - Historical Tables (opens in new tab)">Office of Management and Budget - Historical Tables</a></li>
+                        <li><a href="https://www.govinfo.gov/app/details/BUDGET-2025-TAB" target="_blank" rel="noopener noreferrer" aria-label="Government Publishing Office - Budget Historical Tables (opens in new tab)">Government Publishing Office - Budget Historical Tables</a></li>
+                        <li><a href="https://www.cbo.gov/data/budget-economic-data" target="_blank" rel="noopener noreferrer" aria-label="Congressional Budget Office - Budget and Economic Data (opens in new tab)">Congressional Budget Office - Budget and Economic Data</a></li>
                     </ul>
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
                     <h3>Population Data</h3>
                     <ul>
-                        <li><a href="https://fred.stlouisfed.org/series/POPTHM" target="_blank" rel="noopener noreferrer">FRED - U.S. Population (Monthly)</a></li>
-                        <li><a href="https://fred.stlouisfed.org/release?rid=118" target="_blank" rel="noopener noreferrer">FRED - Annual Population Estimates</a></li>
-                        <li><a href="https://fred.stlouisfed.org/source?soid=19" target="_blank" rel="noopener noreferrer">FRED - U.S. Census Bureau Data</a></li>
+                        <li><a href="https://fred.stlouisfed.org/series/POPTHM" target="_blank" rel="noopener noreferrer" aria-label="FRED - U.S. Population Monthly data (opens in new tab)">FRED - U.S. Population (Monthly)</a></li>
+                        <li><a href="https://fred.stlouisfed.org/release?rid=118" target="_blank" rel="noopener noreferrer" aria-label="FRED - Annual Population Estimates (opens in new tab)">FRED - Annual Population Estimates</a></li>
+                        <li><a href="https://fred.stlouisfed.org/source?soid=19" target="_blank" rel="noopener noreferrer" aria-label="FRED - U.S. Census Bureau Data (opens in new tab)">FRED - U.S. Census Bureau Data</a></li>
                     </ul>
                 </div>
 
@@ -699,9 +889,13 @@ function App() {
                     Debt figures are adjusted to 2000 USD using Consumer Price Index data from the Bureau of Labor Statistics.
                     Growth rates are calculated based on inflation-adjusted debt values.
                 </p>
-            </div>
+            </section>
             
-            <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f0f4f8', borderRadius: '8px', textAlign: 'center', borderTop: '3px solid #2563eb' }}>
+            <footer 
+                role="contentinfo"
+                aria-label="Open source information and repository links"
+                style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f0f4f8', borderRadius: '8px', textAlign: 'center', borderTop: '3px solid #2563eb' }}
+            >
                 <h3 style={{ color: '#1f2937', marginBottom: '15px' }}>Open Source & Transparency</h3>
                 <p style={{ fontSize: '16px', color: '#374151', marginBottom: '15px' }}>
                     This visualization is completely open source! We believe in transparency and encourage everyone to verify our data and methodology.
@@ -709,59 +903,77 @@ function App() {
                 <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '15px' }}>
                     Found an error or have an improvement? We welcome contributions! Feel free to review our code, data sources, and calculations.
                 </p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-                    <a 
-                        href="https://github.com/jlaustill/us-debt" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        style={{ 
-                            color: '#2563eb', 
-                            textDecoration: 'none', 
-                            fontWeight: 'bold',
-                            padding: '8px 16px',
-                            backgroundColor: '#ffffff',
-                            borderRadius: '6px',
-                            border: '2px solid #2563eb',
-                            transition: 'all 0.2s ease'
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.backgroundColor = '#2563eb';
-                            e.currentTarget.style.color = '#ffffff';
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.color = '#2563eb';
-                        }}
-                    >
-                        View Source Code
-                    </a>
-                    <a 
-                        href="https://github.com/jlaustill/us-debt/issues" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        style={{ 
-                            color: '#059669', 
-                            textDecoration: 'none', 
-                            fontWeight: 'bold',
-                            padding: '8px 16px',
-                            backgroundColor: '#ffffff',
-                            borderRadius: '6px',
-                            border: '2px solid #059669',
-                            transition: 'all 0.2s ease'
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.backgroundColor = '#059669';
-                            e.currentTarget.style.color = '#ffffff';
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.backgroundColor = '#ffffff';
-                            e.currentTarget.style.color = '#059669';
-                        }}
-                    >
-                        Report Issues
-                    </a>
-                </div>
-            </div>
+                <nav aria-label="GitHub repository links">
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                        <a 
+                            href="https://github.com/jlaustill/us-debt" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            aria-label="View source code on GitHub (opens in new tab)"
+                            style={{ 
+                                color: '#2563eb', 
+                                textDecoration: 'none', 
+                                fontWeight: 'bold',
+                                padding: '8px 16px',
+                                backgroundColor: '#ffffff',
+                                borderRadius: '6px',
+                                border: '2px solid #2563eb',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.backgroundColor = '#2563eb';
+                                e.currentTarget.style.color = '#ffffff';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.color = '#2563eb';
+                            }}
+                            onFocus={(e) => {
+                                e.currentTarget.style.outline = '2px solid #2563eb';
+                                e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.outline = 'none';
+                            }}
+                        >
+                            View Source Code
+                        </a>
+                        <a 
+                            href="https://github.com/jlaustill/us-debt/issues" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            aria-label="Report issues on GitHub (opens in new tab)"
+                            style={{ 
+                                color: '#059669', 
+                                textDecoration: 'none', 
+                                fontWeight: 'bold',
+                                padding: '8px 16px',
+                                backgroundColor: '#ffffff',
+                                borderRadius: '6px',
+                                border: '2px solid #059669',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.backgroundColor = '#059669';
+                                e.currentTarget.style.color = '#ffffff';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.backgroundColor = '#ffffff';
+                                e.currentTarget.style.color = '#059669';
+                            }}
+                            onFocus={(e) => {
+                                e.currentTarget.style.outline = '2px solid #059669';
+                                e.currentTarget.style.outlineOffset = '2px';
+                            }}
+                            onBlur={(e) => {
+                                e.currentTarget.style.outline = 'none';
+                            }}
+                        >
+                            Report Issues
+                        </a>
+                    </div>
+                </nav>
+            </footer>
         </div>
     )
 }
