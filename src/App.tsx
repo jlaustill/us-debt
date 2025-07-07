@@ -37,6 +37,24 @@ const minY: number = -5;
 const minYear = 1970;
 const maxYear = 2024;
 
+// Political control transition years (manually verified)
+const politicalTransitions = [
+    1977, // Carter (D) presidency begins
+    1981, // Reagan (R) presidency begins  
+    1983, // Republicans gain Senate control
+    1987, // Democrats regain Senate control
+    1993, // Clinton (D) presidency begins
+    1995, // Republicans gain House and Senate control
+    2001, // Bush (R) presidency begins
+    2007, // Democrats gain House control
+    2009, // Obama (D) presidency begins, Democrats gain Senate
+    2011, // Republicans gain House control
+    2017, // Trump (R) presidency begins, Republicans gain Senate
+    2019, // Democrats gain House control
+    2021, // Biden (D) presidency begins, Democrats gain Senate
+    2023  // Republicans gain House control
+];
+
 
 const options
     = {
@@ -160,19 +178,15 @@ const options
                 fontSize: '11px'
             }
         },
-        gridLineColor: 'rgba(0, 0, 0, 0.05)',
-        gridLineWidth: 1,
+        gridLineWidth: 0,
         lineColor: '#d1d5db',
         tickColor: '#d1d5db',
-        plotLines: [
-            // Subtle vertical lines for major political transitions
-            { value: 1981, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Reagan
-            { value: 1993, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Clinton
-            { value: 2001, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Bush
-            { value: 2009, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Obama
-            { value: 2017, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }, // Trump
-            { value: 2021, color: 'rgba(0, 0, 0, 0.1)', width: 1, dashStyle: 'Dot' }  // Biden
-        ]
+        plotLines: politicalTransitions.map(year => ({
+            value: year,
+            color: 'rgba(0, 0, 0, 0.4)',
+            width: 1,
+            dashStyle: 'Dash'
+        }))
     },
     plotOptions: {
         series: {
@@ -718,7 +732,7 @@ function App() {
                 <nav aria-label="Social sharing options">
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
                         <a 
-                            href="https://x.com/intent/tweet?text=Check%20out%20this%20interactive%20US%20National%20Debt%20visualization%20%F0%9F%93%8A%20Track%20debt%20growth%2C%20compare%20with%20GDP%20%26%20spending%2C%20see%20political%20impacts%20from%201970-2024.%20All%20data%20verified%20from%20government%20sources%21&url=https%3A%2F%2Fjlaustill.github.io%2Fus-debt%2F&hashtags=USDebt,DataViz,OpenSource,Economics"
+                            href="https://x.com/intent/tweet?text=Check%20out%20this%20interactive%20US%20National%20Debt%20visualization%20%F0%9F%93%8A%20Track%20debt%20growth%2C%20compare%20with%20GDP%20%26%20spending%2C%20see%20political%20impacts%20from%201970-2024.%20All%20data%20verified%20from%20government%20sources%21&url=https%3A%2F%2Fusdebtovertime.com&hashtags=USDebt,DataViz,OpenSource,Economics"
                             target="_blank" 
                             rel="noopener noreferrer"
                             aria-label="Share on X (opens in new tab)"
@@ -755,7 +769,7 @@ function App() {
                             Share on X
                         </a>
                         <a 
-                            href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fjlaustill.github.io%2Fus-debt%2F"
+                            href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fusdebtovertime.com"
                             target="_blank" 
                             rel="noopener noreferrer"
                             aria-label="Share on Facebook (opens in new tab)"
@@ -792,7 +806,7 @@ function App() {
                             Share on Facebook
                         </a>
                         <a 
-                            href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fjlaustill.github.io%2Fus-debt%2F"
+                            href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fusdebtovertime.com"
                             target="_blank" 
                             rel="noopener noreferrer"
                             aria-label="Share on LinkedIn (opens in new tab)"
