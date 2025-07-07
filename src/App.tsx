@@ -96,7 +96,9 @@ const options
         itemStyle: {
             color: '#374151',
             fontSize: '12px'
-        }
+        },
+        itemMarginTop: 5,
+        itemMarginBottom: 5
     },
     chart: {
         height: "100%",
@@ -104,6 +106,158 @@ const options
         style: {
             fontFamily: 'Arial, sans-serif'
         },
+        spacingTop: 20,
+        spacingRight: 10,
+        spacingBottom: 15,
+        spacingLeft: 10
+    },
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 768
+            },
+            chartOptions: {
+                chart: {
+                    spacingTop: 15,
+                    spacingRight: 5,
+                    spacingBottom: 10,
+                    spacingLeft: 5
+                },
+                title: {
+                    style: {
+                        fontSize: '16px'
+                    }
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom',
+                    itemStyle: {
+                        fontSize: '11px'
+                    },
+                    itemMarginTop: 3,
+                    itemMarginBottom: 3,
+                    maxHeight: 80
+                },
+                yAxis: [{
+                    title: {
+                        style: {
+                            fontSize: '11px'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    }
+                }, {
+                    title: {
+                        style: {
+                            fontSize: '11px'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    }
+                }, {
+                    title: {
+                        style: {
+                            fontSize: '11px'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    }
+                }],
+                xAxis: {
+                    title: {
+                        style: {
+                            fontSize: '11px'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    }
+                }
+            }
+        }, {
+            condition: {
+                maxWidth: 480
+            },
+            chartOptions: {
+                chart: {
+                    spacingTop: 10,
+                    spacingRight: 2,
+                    spacingBottom: 5,
+                    spacingLeft: 2
+                },
+                title: {
+                    style: {
+                        fontSize: '14px'
+                    }
+                },
+                legend: {
+                    itemStyle: {
+                        fontSize: '10px'
+                    },
+                    itemMarginTop: 2,
+                    itemMarginBottom: 2,
+                    maxHeight: 100
+                },
+                yAxis: [{
+                    title: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            fontSize: '9px'
+                        }
+                    }
+                }, {
+                    title: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            fontSize: '9px'
+                        }
+                    }
+                }, {
+                    title: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            fontSize: '9px'
+                        }
+                    }
+                }],
+                xAxis: {
+                    title: {
+                        style: {
+                            fontSize: '10px'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            fontSize: '9px'
+                        }
+                    }
+                }
+            }
+        }]
     },
     yAxis: [{
         // Growth Rate axis
@@ -560,7 +714,7 @@ function App() {
         <div style={{ 
             maxWidth: '1200px', 
             margin: '0 auto', 
-            padding: '20px',
+            padding: 'clamp(10px, 3vw, 20px)',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
         }}>
             <header style={{ 
