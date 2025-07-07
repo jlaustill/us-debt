@@ -2,6 +2,7 @@ import {useRef, useState} from 'react'
 import map from "lodash/map";
 import at from "lodash/at";
 import sortBy from "lodash/sortBy";
+import Papa from 'papaparse';
 
 import {HighchartsReact} from 'highcharts-react-official';
 import 'highcharts/modules/annotations';
@@ -16,6 +17,27 @@ const getSeriesYAxis = (series: Highcharts.Series): number | undefined => {
     const options = series.options as { yAxis?: number };
     return options.yAxis;
 };
+
+// Strong typing for CSV export data
+interface ICSVExportData {
+    year: number;
+    debtNominal: number | string;
+    debtAdjusted: number | string;
+    debtGrowthRate: string;
+    debtChange: string;
+    gdpNominal: number | string;
+    gdpAdjusted: number | string;
+    gdpChange: string;
+    spendingNominal: number | string;
+    spendingAdjusted: number | string;
+    spendingChange: string;
+    population: number | string;
+    inflationAdjuster: string;
+    president: string;
+    presidentialParty: string;
+    senateControl: string;
+    houseControl: string;
+}
 
 
 const growthData = map(sortBy(data, 'year'), o => at(o, ["year", "debtGrowthRate"]));
@@ -445,6 +467,84 @@ const renderPoliticalOverlays = (chart: Chart) => {
         }
     }
 }
+
+const exportToCSV = () => {
+    // Helper functions to find political control for a given year
+    const findPresident = (year: number) => {
+        return presidents.find(p => year >= p.from && year < p.to);
+    };
+    
+    const findSenateControl = (year: number) => {
+        return senateControl.find(s => year >= s.from && year < s.to);
+    };
+    
+    const findHouseControl = (year: number) => {
+        return houseControl.find(h => year >= h.from && year < h.to);
+    };
+    
+    // Create strongly typed data objects
+    const csvDataObjects: ICSVExportData[] = data.map(row => {
+        const president = findPresident(row.year);
+        const senateCtrl = findSenateControl(row.year);
+        const houseCtrl = findHouseControl(row.year);
+        
+        return {
+            year: row.year,
+            debtNominal: row.debt || '',
+            debtAdjusted: row.adjustedDebt || '',
+            debtGrowthRate: row.debtGrowthRate?.toFixed(2) || '',
+            debtChange: row.debtChange?.toFixed(2) || '',
+            gdpNominal: row.gdp || '',
+            gdpAdjusted: row.adjustedGdp || '',
+            gdpChange: row.gdpChange?.toFixed(2) || '',
+            spendingNominal: row.spending || '',
+            spendingAdjusted: row.adjustedSpending || '',
+            spendingChange: row.spendingChange?.toFixed(2) || '',
+            population: row.population || '',
+            inflationAdjuster: row.inflationAdjuster?.toFixed(4) || '',
+            president: president?.name || '',
+            presidentialParty: president?.party || '',
+            senateControl: senateCtrl?.party || '',
+            houseControl: houseCtrl?.party || ''
+        };
+    });
+    
+    // Use Papa Parse to properly handle CSV generation with escaping
+    const csvContent = Papa.unparse(csvDataObjects, {
+        header: true,
+        columns: [
+            'year',
+            'debtNominal', 
+            'debtAdjusted',
+            'debtGrowthRate',
+            'debtChange',
+            'gdpNominal',
+            'gdpAdjusted', 
+            'gdpChange',
+            'spendingNominal',
+            'spendingAdjusted',
+            'spendingChange',
+            'population',
+            'inflationAdjuster',
+            'president',
+            'presidentialParty',
+            'senateControl',
+            'houseControl'
+        ]
+    });
+    
+    // Download the CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `us-debt-data-1970-2024.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+};
 
 const load = (chart: Chart, setIsChartLoading: (loading: boolean) => void) => {
     renderPoliticalOverlays(chart);
@@ -896,6 +996,52 @@ function App() {
                         <li><a href="https://fred.stlouisfed.org/release?rid=118" target="_blank" rel="noopener noreferrer" aria-label="FRED - Annual Population Estimates (opens in new tab)">FRED - Annual Population Estimates</a></li>
                         <li><a href="https://fred.stlouisfed.org/source?soid=19" target="_blank" rel="noopener noreferrer" aria-label="FRED - U.S. Census Bureau Data (opens in new tab)">FRED - U.S. Census Bureau Data</a></li>
                     </ul>
+                </div>
+
+                <div style={{ marginTop: '25px', padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px', border: '2px solid #16a34a' }}>
+                    <h3 style={{ color: '#1f2937', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span aria-hidden="true">📊</span>
+                        Download Raw Data
+                    </h3>
+                    <p style={{ fontSize: '14px', color: '#374151', marginBottom: '15px' }}>
+                        For complete transparency, download the exact dataset used in this visualization as a CSV file.
+                    </p>
+                    <button
+                        onClick={exportToCSV}
+                        aria-label="Download data as CSV file"
+                        style={{
+                            backgroundColor: '#16a34a',
+                            color: '#ffffff',
+                            border: 'none',
+                            padding: '12px 24px',
+                            borderRadius: '6px',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#15803d';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = '#16a34a';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                        onFocus={(e) => {
+                            e.currentTarget.style.outline = '2px solid #16a34a';
+                            e.currentTarget.style.outlineOffset = '2px';
+                        }}
+                        onBlur={(e) => {
+                            e.currentTarget.style.outline = 'none';
+                        }}
+                    >
+                        <span aria-hidden="true">⬇️</span>
+                        Download CSV (1970-2024)
+                    </button>
                 </div>
 
                 <p style={{ fontSize: '14px', color: '#666', marginTop: '20px' }}>
