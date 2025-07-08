@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react'
+import {useRef, useState, useEffect, useMemo} from 'react'
 import map from "lodash/map";
 import at from "lodash/at";
 import sortBy from "lodash/sortBy";
@@ -78,8 +78,12 @@ const politicalTransitions = [
 ];
 
 
-const options
-    = {
+function App() {
+    const chartComponentRef = useRef<HighchartsReact.RefObject | null>(null);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [isChartLoading, setIsChartLoading] = useState(true);
+
+    const chartOptions = useMemo(() => ({
     title: {
         text: 'United States National Debt Over Time',
         style: {
@@ -528,9 +532,9 @@ const options
         lineWidth: 2,
         visible: false
     }]
-};
+    }), []);
 
-const renderPoliticalOverlays = (chart: Chart) => {
+    const renderPoliticalOverlays = (chart: Chart) => {
     // Remove existing political overlay elements by class
     try {
         const existingOverlays = chart.container.querySelectorAll('.political-overlay');
@@ -700,15 +704,31 @@ const exportToCSV = () => {
     URL.revokeObjectURL(url);
 };
 
-const load = (chart: Chart, setIsChartLoading: (loading: boolean) => void) => {
+const load = (chart: Chart, setIsChartLoading: (loading: boolean) => void, renderPoliticalOverlays: (chart: Chart) => void) => {
     renderPoliticalOverlays(chart);
     setIsChartLoading(false);
 }
 
-function App() {
-    const chartComponentRef = useRef<HighchartsReact.RefObject | null>(null);
-    const [isGuideOpen, setIsGuideOpen] = useState(false);
-    const [isChartLoading, setIsChartLoading] = useState(true);
+    useEffect(() => {
+        const handleResize = () => {
+            if (chartComponentRef.current?.chart) {
+                const chart = chartComponentRef.current.chart;
+                
+                setTimeout(() => {
+                    chart.reflow();
+                    renderPoliticalOverlays(chart);
+                }, 100);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('orientationchange', handleResize);
+        };
+    }, []);
 
     return (
         <div style={{ 
@@ -806,9 +826,9 @@ function App() {
                 >
                     <HighchartsReact
                         highcharts={Highcharts}
-                        options={options}
+                        options={chartOptions}
                         ref={chartComponentRef}
-                        callback={(chart: Chart) => load(chart, setIsChartLoading)}
+                        callback={(chart: Chart) => load(chart, setIsChartLoading, renderPoliticalOverlays)}
                     />
                 </div>
             </main>
